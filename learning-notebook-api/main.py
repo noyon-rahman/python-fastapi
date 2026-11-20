@@ -39,12 +39,15 @@ notes = [
   },
 ]
 
-class Note(BaseModel):
+class NoteIn(BaseModel):
   term: str
   definition: str
   js_equivalent: str | None = None
   tags: list[str] = []
   learned: bool = False
+
+class Note(NoteIn):
+  id: int
 
 class NoteUpdate(BaseModel):
   term: str | None = None
@@ -53,11 +56,19 @@ class NoteUpdate(BaseModel):
   tags: list[str] | None = None
   learned: bool | None = None
 
-@app.get("/")
+class Message(BaseModel):
+  message: str
+
+class Stats(BaseModel):
+  total: int
+  learned: int
+  by_tag: dict[str, int]
+
+@app.get("/", response_model=Message)
 def root():
   return {"message": "Learning Notebook API is running"}
 
-@app.get("/terms")
+@app.get("/terms", response_model=list[Note])
 def get_terms(tag: str | None = None, q: str | None = None):
   result = []
   for note in notes:
@@ -68,34 +79,31 @@ def get_terms(tag: str | None = None, q: str | None = None):
     result.append(note)
   return result
 
-@app.get("/terms/random")
+@app.get("/terms/random", response_model=Note)
 def random_term():
   if len(notes) == 0:
     raise HTTPException(status_code=404, detail="No terms yet!")
   return random.choice(notes)
 
-@app.post("/terms", status_code=201)
-def add_term(note: Note):
+@app.post("/terms", status_code=201, response_model=Note)
+def add_term(note: NoteIn):
   for existing in notes:
     if existing["term"].lower() == note.term.lower():
       raise HTTPException(status_code=409, detail="Term already exists")
-  new_id = 1
-  for nt in notes:
-    if nt["id"] >= new_id:
-      new_id = nt["id"] + 1
+  new_id = max((nt["id"] for nt in notes), default=0) + 1
   new_note = {"id": new_id}
   new_note.update(note.model_dump())
   notes.append(new_note)
   return new_note
 
-@app.get("/terms/{term_id}")
+@app.get("/terms/{term_id}", response_model=Note)
 def get_term(term_id: int):
   for note in notes:
     if note["id"] == term_id:
       return note
   raise HTTPException(status_code=404, detail="Term not found")
 
-@app.patch("/terms/{term_id}")
+@app.patch("/terms/{term_id}", response_model=Note)
 def update_term(term_id: int, changes: NoteUpdate):
   for note in notes:
     if note["id"] == term_id:
@@ -103,7 +111,7 @@ def update_term(term_id: int, changes: NoteUpdate):
       return note
   raise HTTPException(status_code=404, detail="Term not found")
 
-@app.delete("/terms/{term_id}", status_code=204)
+@app.delete("/terms/{term_id}", status_code=204, response_model=None)
 def delete_term(term_id: int):
   for note in notes:
     if note["id"] == term_id:
@@ -111,7 +119,7 @@ def delete_term(term_id: int):
       return
   raise HTTPException(status_code=404, detail="Term not found")
 
-@app.get("/stats")
+@app.get("/stats", response_model=Stats)
 def get_stats():
   learned = 0
   by_tag = {}
