@@ -37,6 +37,9 @@ htmlcov/
 *.sqlite3
 *.db
 
+# Learning Notebook API runtime data
+notes.json
+
 # Editors / IDEs
 .vscode/
 .idea/
