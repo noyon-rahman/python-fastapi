@@ -1,5 +1,10 @@
 # Python + FastAPI Workshop
 
+[![Python](https://img.shields.io/badge/python-3.14%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.165.0-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Hands-on workshop material for learning Python from a JavaScript background, culminating in a small REST API built with FastAPI.
 
 ## What's inside
@@ -108,4 +113,4 @@ curl http://127.0.0.1:8000/stats
 
 ## License
 
-Workshop material — use freely for learning.
+Released under the [MIT License](LICENSE).
